@@ -195,7 +195,7 @@ void Tracer::RayIntHelper(size_t numberofelems, size_t numberofnodesperelem,
 					}
 				}
 			}
-//			Ray[i][vertex].shrink_to_fit();
+			Ray[i][vertex].shrink_to_fit();
 		}
 	}
 }
