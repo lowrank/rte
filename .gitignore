@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+\.cproject
+
+\.project
+
+\.settings/
+
+*.mexa64
