@@ -46,8 +46,9 @@ void Tracer::RayIntHelper(size_t numberofelems, size_t numberofnodesperelem,
 	Raylet tmp_ray;
 
 	std::vector<double> tmp;
-	std::set<int> s_elem;
+	std::unordered_set<int> s_elem;
 	std::queue<int> q_elem;
+	std::unordered_set<int> s_node;
 
 	/*
 	 * for loop, main part
@@ -59,7 +60,11 @@ void Tracer::RayIntHelper(size_t numberofelems, size_t numberofnodesperelem,
 			 */
 			vertex = pelems[numberofnodesperelem * j + k] - 1;
 
+			if (s_node.find(vertex) != s_node.end()) {
+				continue;
+			}
 
+			s_node.insert(vertex);
 			/*
 			 * calculate the ray intersects with the boundary.
 			 */
@@ -123,12 +128,11 @@ void Tracer::RayIntHelper(size_t numberofelems, size_t numberofnodesperelem,
 				// fail safe strategy, if it is possible to intersect, must push.
 				for (int32_t q_elem_i = 0; q_elem_i < 3; q_elem_i ++){
 
-					index = pneighbors[3 * top + q_elem_i] - 1;
+					index = pneighbors[3 * (top) + q_elem_i] - 1;
 
 					// test if it is going to push them in.
 					// first : valid index of element
 					if (index > -1 && s_elem.find(index) == s_elem.end()) {
-
 						/*
 						 * calculate the open angle limit. And find the suitable one.
 						 *
@@ -158,6 +162,7 @@ void Tracer::RayIntHelper(size_t numberofelems, size_t numberofnodesperelem,
 						if (intersect){
 							q_elem.push(index);
 							s_elem.insert(index);
+
 							/*
 							 * calculate integral over this element
 							 *
@@ -186,7 +191,6 @@ void Tracer::RayIntHelper(size_t numberofelems, size_t numberofnodesperelem,
 								 */
 								if (!Ray[i][vertex].size() || fabs(tmp_ray.first[0] - Ray[i][vertex].back().first[0]) > MEX_EPS ||
 									fabs(tmp_ray.first[1] - Ray[i][vertex].back().first[1]) > MEX_EPS){
-
 									Ray[i][vertex].push_back(tmp_ray);
 
 								}
