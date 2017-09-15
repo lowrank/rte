@@ -37,3 +37,6 @@ $(domWrapperOut)/TracerWrapper.mexa64: $(domWrapper)/dom.o
 ###########################################################
 
 all:$(domWrapperOut)/TracerWrapper.mexa64
+
+clean:
+	rm -f $(domWrapperOut)/TracerWrapper.mexa64 

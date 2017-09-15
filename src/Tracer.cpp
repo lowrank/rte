@@ -30,7 +30,6 @@ Tracer::Tracer(M_Ptr angle, M_Ptr nodes, M_Ptr elems, M_Ptr neigh){
 }
 Tracer::~Tracer() {}
 
-
 void Tracer::RayIntHelper(size_t numberofelems, size_t numberofnodesperelem,
 		size_t numberofnodes,
 		int32_t* pelems, double* pnodes, int32_t* pneighbors,int32_t i, double theta){
@@ -359,33 +358,31 @@ void Tracer::RayTrim(std::vector<double>& tmp, double &a, double &b){
 }
 
 void Tracer::RayShow(){
-		int32_t tmp_i, tmp_j;
-		size_t tmp_total = 0;
-		if (Ray.size() != 0) {
-			for (int32_t i = 0 ; i < Ray.size(); i++){
-				tmp_i = Ray[i].size();
-				for (int32_t j = 0; j < tmp_i; j++){
-					tmp_j = Ray[i][j].size();
-					tmp_total += tmp_j * 40;
+	int32_t tmp_i, tmp_j;
+	size_t tmp_total = 0;
+	if (Ray.size() != 0) {
+		for (int32_t i = 0 ; i < Ray.size(); i++){
+			tmp_i = Ray[i].size();
+			for (int32_t j = 0; j < tmp_i; j++){
+				tmp_j = Ray[i][j].capacity();
+				tmp_total += tmp_j * 40;
 
-					for (int32_t k = 0; k < tmp_j; k++) {
-						std::cout << i << "th Angle, "
-								<< j << "th node, "
-								<< k << "th raylet: passes through "
-								<< Ray[i][j][k].elem << ", starting from "
-								<< Ray[i][j][k].first[0] << ", " << Ray[i][j][k].first[1] << " --> "
-								<< Ray[i][j][k].second[0] << ", " << Ray[i][j][k].second[1] << std::endl;
-					}
-				}
+//				for (int32_t k = 0; k < tmp_j; k++) {
+//					std::cout << i << "th Angle, "
+//							<< j << "th node, "
+//							<< k << "th raylet: passes through "
+//							<< Ray[i][j][k].elem << ", starting from "
+//							<< Ray[i][j][k].first[0] << ", " << Ray[i][j][k].first[1] << " --> "
+//							<< Ray[i][j][k].second[0] << ", " << Ray[i][j][k].second[1] << std::endl;
+//				}
 			}
 		}
-		std::cout
-		<< tmp_total / 1024.0/ 1024.0/ 1024.0
-		<< " GBytes used in Ray storage."
-		<< std::endl;
 	}
-
-
+	std::cout
+	<< tmp_total / 1024.0/ 1024.0/ 1024.0
+	<< " GBytes used in geometry storage."
+	<< std::endl;
+}
 
 using namespace mexplus;
 
