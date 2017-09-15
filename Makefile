@@ -29,12 +29,14 @@ CXX_LIBS = -Wl,--no-undefined -Wl,-rpath-link,"$(MATLAB_ROOT)bin/glnxa64" \
 domWrapper    = src
 domWrapperOut = class/tracer/private
 
-$(domWrapper)/dom.o: $(domWrapper)/Tracer.cpp $(domWrapper)/Tracer.h
+$(domWrapper)/dom.o: $(domWrapper)/Tracer.cpp $(domWrapper)/Tracer.h path
 	$(CXX) -c $(CXX_INCLUDE) $(CXX_FLAGS) $< -o $@
 
 $(domWrapperOut)/TracerWrapper.mexa64: $(domWrapper)/dom.o
 	$(CXX) $(MATLAB_LINKS) -o $@ $< $(CXX_LIBS) && rm $(domWrapper)/dom.o
 ###########################################################
+path:
+	mkdir -p ./class/tracer/private
 
 all:$(domWrapperOut)/TracerWrapper.mexa64
 
