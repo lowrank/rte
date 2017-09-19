@@ -25,12 +25,12 @@ Tracer::Tracer(M_Ptr angle, M_Ptr nodes, M_Ptr elems, M_Ptr neigh){
 		Ray[aId].resize(numberofnodes);
 		double theta = pangle[aId];
 
-		RayIntHelper(numberofelems, numberofnodesperelem, numberofnodes, pelems, pnodes, pneigh, aId, theta);
+		RayHelper(numberofelems, numberofnodesperelem, numberofnodes, pelems, pnodes, pneigh, aId, theta);
 	}
 }
 Tracer::~Tracer() {}
 
-void Tracer::RayIntHelper(size_t numberofelems, size_t numberofnodesperelem,
+void Tracer::RayHelper(size_t numberofelems, size_t numberofnodesperelem,
 		size_t numberofnodes,
 		int32_t* pelems, double* pnodes, int32_t* pneighbors,int32_t i, double theta){
 
@@ -345,7 +345,7 @@ void Tracer::RayTrim(std::vector<double>& tmp, double &a, double &b){
 	if (tmp.size() == 4) {
 		//remove duplicates
 		if (fabs(tmp[0] - tmp[2]) + fabs(tmp[1] - tmp[3]) < MEX_EPS) {
-			tmp.clear();
+			tmp.erase(tmp.begin() + 2, tmp.end());
 		}
 		else {
 			// reorder
@@ -365,16 +365,16 @@ void Tracer::RayShow(){
 			tmp_i = Ray[i].size();
 			for (int32_t j = 0; j < tmp_i; j++){
 				tmp_j = Ray[i][j].capacity();
-				tmp_total += tmp_j * 40;
+				tmp_total += tmp_j * sizeof(Raylet);
 
-//				for (int32_t k = 0; k < tmp_j; k++) {
-//					std::cout << i << "th Angle, "
-//							<< j << "th node, "
-//							<< k << "th raylet: passes through "
-//							<< Ray[i][j][k].elem << ", starting from "
-//							<< Ray[i][j][k].first[0] << ", " << Ray[i][j][k].first[1] << " --> "
-//							<< Ray[i][j][k].second[0] << ", " << Ray[i][j][k].second[1] << std::endl;
-//				}
+				for (int32_t k = 0; k < tmp_j; k++) {
+					std::cout << i << "th Angle, "
+							<< j << "th node, "
+							<< k << "th raylet: passes through "
+							<< Ray[i][j][k].elem << ", starting from "
+							<< Ray[i][j][k].first[0] << ", " << Ray[i][j][k].first[1] << " --> "
+							<< Ray[i][j][k].second[0] << ", " << Ray[i][j][k].second[1] << std::endl;
+				}
 			}
 		}
 	}

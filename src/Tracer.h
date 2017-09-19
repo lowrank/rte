@@ -49,7 +49,7 @@ public:
 	virtual ~Tracer();
 
 
-	void RayIntHelper(size_t numberofelems, size_t numberofnodesperelem,
+	void RayHelper(size_t numberofelems, size_t numberofnodesperelem,
 			size_t numberofnodes,
 			int32_t* pelems, double* pnodes, int32_t* pneighbors,
 			int32_t i, double theta);
