@@ -15,6 +15,10 @@ classdef tracer < handle
         function disp(obj)
             TracerWrapper('disp', obj.id);
         end
+        
+        function v = boundary_transport(obj, node, elem, sigma_a, u)
+            v = TracerWrapper('boundary_transport', obj.id, node, elem, sigma_a, u);
+        end
     end
     
 end

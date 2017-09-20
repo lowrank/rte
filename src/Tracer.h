@@ -27,6 +27,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <set>
+#include <cassert>
 #include <queue>
 #include <mexplus.h>
 #include "common.h"

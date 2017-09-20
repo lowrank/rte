@@ -384,6 +384,9 @@ void Tracer::RayShow(){
 	<< std::endl;
 }
 
+
+
+
 using namespace mexplus;
 
 template class Session<Tracer>;
@@ -407,13 +410,94 @@ namespace {
     	InputArguments input(nrhs, prhs, 1);
     	OutputArguments output(nlhs, plhs, 0);
 
-    	auto DOM = Session<Tracer>::get(input.get(0));
+    	auto tracer = Session<Tracer>::get(input.get(0));
 
-    	DOM->RayShow();
+    	tracer->RayShow();
     }
 
+    /*
+     * only mex related routines.
+     */
+    MEX_DEFINE(boundary_transport)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
+    	InputArguments input(nrhs, prhs, 5);
+    	OutputArguments output(nlhs, plhs, 1);
+
+    	auto tracer = Session<Tracer>::get(input.get(0));
+    	auto pnodes = mxGetPr(prhs[1]);
+    	auto numberofnodes = mxGetN(prhs[1]);
+
+    	auto pelems = (int*)mxGetPr(prhs[2]);
+    	auto numberofnodesperelem = mxGetM(prhs[2]);
+
+    	auto pval = mxGetPr(prhs[3]);
+    	auto sol = mxGetPr(prhs[4]);
+
+    	auto angles = tracer->Ray.size();
+
+    	plhs[0] = mxCreateNumericMatrix(angles, numberofnodes, mxDOUBLE_CLASS, mxREAL);
+    	auto ptr = mxGetPr(plhs[0]);
+
+    	double det, length, eta, lambda, lv, rv, acc, bd;
+    	double x1, y1, x2, y2, x3, y3;
+    	int vertex_1, vertex_2, vertex_3;
 
 
+    	for (int si = 0; si < angles; ++si) { // angles
+    		for (int sj = 0; sj < numberofnodes; ++sj){ // nodes
+    			acc = 0.;
+    			if (tracer->Ray[si][sj].size()) { // if this coming direction is reversible
+    				/*
+    				 * get last element?
+    				 */
+    				for (auto it : tracer->Ray[si][sj]) { // traverse all raylets.
+    					vertex_1 = pelems[it.elem * numberofnodesperelem] - 1;
+    					vertex_2 = pelems[it.elem * numberofnodesperelem + 1] - 1;
+    					vertex_3 = pelems[it.elem * numberofnodesperelem + 2] - 1;
+
+    					x1 = pnodes[2 * vertex_1];
+    					y1 = pnodes[2 * vertex_1 + 1];
+    					x2 = pnodes[2 * vertex_2];
+    					y2 = pnodes[2 * vertex_2 + 1];
+    					x3 = pnodes[2 * vertex_3];
+    					y3 = pnodes[2 * vertex_3 + 1];
+
+    					det = (x1 - x3) * (y2 - y3) - (x2 - x3) * (y1 - y3);
+    					length = sqrt(pow(it.first[0] - it.second[0], 2) +
+    							pow(it.first[1] - it.second[1], 2));
+
+    					eta = ((y3 - y1) * (it.first[0] - x3) + (x1 - x3) * (it.first[1] - y3));
+    					eta /= det;
+
+    					lambda = (y2 - y3) * (it.first[0] - x3) + (x3 -  x2) * (it.first[1] - y3);
+    					lambda /= det;
+
+
+    					lv = lambda * pval[vertex_1] + eta * pval[vertex_2] +
+    							(1 - lambda - eta) * pval[vertex_3];
+
+    					eta = ((y3 - y1) * (it.second[0] - x3) + (x1 - x3) * (it.second[1] - y3));
+    					eta /= det;
+
+    					lambda = (y2 - y3) * (it.second[0] - x3) + (x3 -  x2) * (it.second[1] - y3);
+    					lambda /= det;
+
+
+    					rv = lambda * pval[vertex_1] + eta * pval[vertex_2] +
+    							(1 - lambda - eta) * pval[vertex_3];
+
+    					acc += (rv + lv) * length / 2.0;
+    				} // all raylet
+
+					bd = lambda * sol[angles * vertex_1 + si] + eta * sol[angles *  vertex_2 + si] +
+							(1 - lambda - eta) * sol[angles * vertex_3 + si];
+    				ptr[angles* sj + si] = exp(-acc) * bd;
+    			}// if trace
+    			else {
+    				ptr[angles * sj + si] = sol[angles * sj + si];
+    			}
+    		} // node
+    	} // angle
+    }
 }
 
 MEX_DISPATCH
