@@ -437,12 +437,11 @@ namespace {
     	plhs[0] = mxCreateNumericMatrix(angles, numberofnodes, mxDOUBLE_CLASS, mxREAL);
     	auto ptr = mxGetPr(plhs[0]);
 
-    	double det, length, eta, lambda, lv, rv, acc, bd;
-    	double x1, y1, x2, y2, x3, y3;
-    	int vertex_1, vertex_2, vertex_3;
-
-
+#pragma omp parallel for
     	for (int si = 0; si < angles; ++si) { // angles
+        	double det, length, eta, lambda, lv, rv, acc, bd;
+        	double x1, y1, x2, y2, x3, y3;
+        	int vertex_1, vertex_2, vertex_3;
     		for (int sj = 0; sj < numberofnodes; ++sj){ // nodes
     			acc = 0.;
     			if (tracer->Ray[si][sj].size()) { // if this coming direction is reversible
@@ -498,6 +497,10 @@ namespace {
     		} // node
     	} // angle
     }
+
+    /*
+     * internal source.
+     */
 }
 
 MEX_DISPATCH
