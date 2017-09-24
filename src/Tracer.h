@@ -37,6 +37,8 @@ using std::swap;
 using std::cout;
 using std::endl;
 
+// double precision is not necessary if phase space is not fine enough.
+// currently, we use double_t, float could be an option.
 typedef struct Raylet {
 	int32_t elem;
 	double first[2];
@@ -63,6 +65,8 @@ public:
 	void RayTrim(std::vector<double>& tmp, double &a, double &b);
 
 	void RayShow();
+
+	void RayBC(double* pnodes, size_t numberofnodes, int* pelems, size_t numberofnodesperelem, double* pval, double* sol, double* ptr);
 
 	vector<vector<vector<Raylet>>> Ray;
 

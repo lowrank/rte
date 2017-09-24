@@ -22,7 +22,6 @@ mesh = mesh.refine_tri(sprintf('q34.0a%f', 0.00125));
 angle = linspace(0, 2*pi, NA + 1);
 angle = angle(1:end-1);
 
-
 %% tracing rays, takes time.
 tic;rays = tracer(angle, p, t, n);toc;
 
