@@ -80,4 +80,4 @@ inline double INTERSECT_CROSS(double X1,double Y1,double X2,double Y2,double A,d
 	}
 
 
-#endif /* Tracer.h_H */
+#endif /* Tracer.h */

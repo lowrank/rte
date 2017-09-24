@@ -356,7 +356,7 @@ void Tracer::RayTrim(std::vector<double>& tmp, double &a, double &b){
 		}
 	}
 }
-//todo: get option for display verbose information.
+//TODO: get option for display verbose information.
 void Tracer::RayShow(){
 	int32_t tmp_i, tmp_j;
 	size_t tmp_total = 0;
@@ -383,7 +383,6 @@ void Tracer::RayShow(){
 	<< " GBytes used in geometry storage."
 	<< std::endl;
 }
-
 
 void Tracer::RayBC(double* pnodes, size_t numberofnodes, int* pelems, size_t numberofnodesperelem, double* pval, double* sol, double* ptr){
 	auto angles = Ray.size();
@@ -496,11 +495,7 @@ namespace {
     	auto ptr = mxGetPr(plhs[0]);
 
     	tracer->RayBC(pnodes, numberofnodes,pelems, numberofnodesperelem, pval, sol, ptr);
-
-
     }
 }
 
 MEX_DISPATCH
-
-
