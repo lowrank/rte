@@ -28,7 +28,7 @@ tic;rays = tracer(angle, p, t, n);toc;
 
 %% boundary contribution, which should be in solution. 
 bc = zeros(NA, size(p,2));
-bc(1:127, 1) = 1.0;
+bc(:, 1) = 1.0; % isotropic point source.
 
 tic;u = rays.boundary_transport(p, t, 0.002*ones(size(p,2),1), bc);toc;
 fl = sum(u)/NA;

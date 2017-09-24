@@ -367,14 +367,14 @@ void Tracer::RayShow(){
 				tmp_j = Ray[i][j].capacity();
 				tmp_total += tmp_j * sizeof(Raylet);
 
-				for (int32_t k = 0; k < tmp_j; k++) {
-					std::cout << i << "th Angle, "
-							<< j << "th node, "
-							<< k << "th raylet: passes through "
-							<< Ray[i][j][k].elem << ", starting from "
-							<< Ray[i][j][k].first[0] << ", " << Ray[i][j][k].first[1] << " --> "
-							<< Ray[i][j][k].second[0] << ", " << Ray[i][j][k].second[1] << std::endl;
-				}
+//				for (int32_t k = 0; k < tmp_j; k++) {
+//					std::cout << i << "th Angle, "
+//							<< j << "th node, "
+//							<< k << "th raylet: passes through "
+//							<< Ray[i][j][k].elem << ", starting from "
+//							<< Ray[i][j][k].first[0] << ", " << Ray[i][j][k].first[1] << " --> "
+//							<< Ray[i][j][k].second[0] << ", " << Ray[i][j][k].second[1] << std::endl;
+//				}
 			}
 		}
 	}
