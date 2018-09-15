@@ -51,22 +51,37 @@ void Tracer::RayHelper(size_t numberofelems, size_t numberofnodesperelem,
 
 	/*
 	 * for loop, main part
+	 *
+	 *
+	 * s_node stores the vertex visited for this ray.
+	 * s_elem stores the element visited.
+	 *
+	 * a, b is the starting point for current ray.
+	 * theta as the direction angle.
+	 *
+	 * q_elem is the temp queue for testing neighbors.
+	 *
+	 *
+	 * tmp is the output for this run.
+	 *
 	 */
 	for (int j = 0; j < numberofelems; j++) {
 		for (int k = 0; k < numberofnodesperelem; k++){
-			/*
-			 * index of vertex in nodes.
-			 */
-			vertex = pelems[numberofnodesperelem * j + k] - 1;
+
+
+
+			vertex = pelems[numberofnodesperelem * j + k] - 1;  // index of vertex in nodes of jth element. minus 1 to be 0-based.
 
 			if (s_node.find(vertex) != s_node.end()) {
-				continue;
+				continue;                                       // make sure that we have not run for this vertex yet.
 			}
 
 			s_node.insert(vertex);
+
 			/*
 			 * calculate the ray intersects with the boundary.
 			 */
+
 			a = pnodes[2 * vertex    ];
 			b = pnodes[2 * vertex + 1];
 
@@ -76,19 +91,26 @@ void Tracer::RayHelper(size_t numberofelems, size_t numberofnodesperelem,
 			q_elem.push(j);
 			s_elem.insert(j);
 			/*
-			 * check the jth.
+			 * check the intersection inside jth element.
 			 */
-			index = j;
 
-			q_x1 = pnodes[2 * (pelems[numberofnodesperelem * index] - 1)];
-			q_y1 = pnodes[2 * (pelems[numberofnodesperelem * index] - 1) + 1];
+			q_x1 = pnodes[2 * (pelems[numberofnodesperelem * j] - 1)];
+			q_y1 = pnodes[2 * (pelems[numberofnodesperelem * j] - 1) + 1];
 
-			q_x2 = pnodes[2 * (pelems[numberofnodesperelem * index + 1] - 1)];
-			q_y2 = pnodes[2 * (pelems[numberofnodesperelem * index + 1] - 1) + 1];
+			q_x2 = pnodes[2 * (pelems[numberofnodesperelem * j + 1] - 1)];
+			q_y2 = pnodes[2 * (pelems[numberofnodesperelem * j + 1] - 1) + 1];
 
-			q_x3 = pnodes[2 * (pelems[numberofnodesperelem * index + 2] - 1)];
-			q_y3 = pnodes[2 * (pelems[numberofnodesperelem * index + 2] - 1) + 1];
+			q_x3 = pnodes[2 * (pelems[numberofnodesperelem * j + 2] - 1)];
+			q_y3 = pnodes[2 * (pelems[numberofnodesperelem * j + 2] - 1) + 1];
 
+
+            /*
+             * find possible intersection with the ray and the triangle.
+             * it is possible to have 0, 1, 2 intersections depending on various cases.
+             * Just compute the intersection of the ray with 3 sides.
+             * We got 3 intersections. We arrange them according to the distance from (a,b) and abandon the duplicates.
+             *
+             */
 			RayTrace(tmp, intersect, q_t, q_eta,
 					q_x1, q_y1, q_x2, q_y2, q_x3, q_y3,
 					a, b, theta);
@@ -96,38 +118,33 @@ void Tracer::RayHelper(size_t numberofelems, size_t numberofnodesperelem,
 			RayTrim(tmp, a, b);
 
 			if (tmp.size()) {
-					tmp_ray.elem = index;
-				if (tmp.size() == 2) {
-					tmp_ray.first[0] = a;
-					tmp_ray.first[1] = b;
-					tmp_ray.second[0] = tmp[0];
-					tmp_ray.second[1] = tmp[1];
-				}
-				else {
-					tmp_ray.first[0] = tmp[0];
-					tmp_ray.first[1] = tmp[1];
-					tmp_ray.second[0] = tmp[2];
-					tmp_ray.second[1] = tmp[3];
-				}
+			    tmp_ray.elem = j;
+                if (tmp.size() == 4) {
+                    tmp_ray.first[0] = tmp[0];
+                    tmp_ray.first[1] = tmp[1];
+                    tmp_ray.second[0] = tmp[2];
+                    tmp_ray.second[1] = tmp[3];
+                }
+                else if (tmp.size() == 2) {
+                    tmp_ray.first[0] = a;
+                    tmp_ray.first[1] = b;
+                    tmp_ray.second[0] = tmp[0];
+                    tmp_ray.second[1] = tmp[1];
+                }
 
-				/*
-				 * remove duplicates, since sorted, only test first two.
-				 */
+				Ray[i][vertex].push_back(tmp_ray);
 
-				if (!Ray[i][vertex].size() || fabs(tmp_ray.first[0] - Ray[i][vertex].back().first[0]) > MEX_EPS ||
-					fabs(tmp_ray.first[1] - Ray[i][vertex].back().first[1]) > MEX_EPS){
-
-					Ray[i][vertex].push_back(tmp_ray);
-				}
 			}
+
+            // if queue is not empty, means we have not tried all elements on this ray
 			while (!q_elem.empty()){
 				auto top = q_elem.front();
 				q_elem.pop();
 				// loop over neighbors.
-				// fail safe strategy, if it is possible to intersect, must push.
-				for (int32_t q_elem_i = 0; q_elem_i < 3; q_elem_i ++){
 
-					index = pneighbors[3 * (top) + q_elem_i] - 1;
+                for (auto nnid = 0; nnid < 3; ++nnid){
+
+					index = pneighbors[3 * top + nnid] - 1;
 
 					// test if it is going to push them in.
 					// first : valid index of element
@@ -171,38 +188,89 @@ void Tracer::RayHelper(size_t numberofelems, size_t numberofnodesperelem,
 							RayTrim(tmp, a, b);
 
 							if (tmp.size()) {
-									tmp_ray.elem = index;
-								if (tmp.size() == 2) {
-									tmp_ray.first[0] = a;
-									tmp_ray.first[1] = b;
-									tmp_ray.second[0] = tmp[0];
-									tmp_ray.second[1] = tmp[1];
-								}
-								else {
-									tmp_ray.first[0] = tmp[0];
-									tmp_ray.first[1] = tmp[1];
-									tmp_ray.second[0] = tmp[2];
-									tmp_ray.second[1] = tmp[3];
-								}
+                                tmp_ray.elem = index;
+
+                                if (tmp.size() == 4) {
+                                    tmp_ray.first[0] = tmp[0];
+                                    tmp_ray.first[1] = tmp[1];
+                                    tmp_ray.second[0] = tmp[2];
+                                    tmp_ray.second[1] = tmp[3];
+                                }
+                                else if (tmp.size() == 2) {
+                                    tmp_ray.first[0] = a;
+                                    tmp_ray.first[1] = b;
+                                    tmp_ray.second[0] = tmp[0];
+                                    tmp_ray.second[1] = tmp[1];
+                                }
 
 								/*
 								 * remove duplicates, since sorted, only test first two.
 								 */
-								if (!Ray[i][vertex].size() || fabs(tmp_ray.first[0] - Ray[i][vertex].back().first[0]) > MEX_EPS ||
-									fabs(tmp_ray.first[1] - Ray[i][vertex].back().first[1]) > MEX_EPS){
-									Ray[i][vertex].push_back(tmp_ray);
+								Ray[i][vertex].push_back(tmp_ray);
 
-								}
 							}
 						}
 					}
 				}
 			}
+
+            auto cmp = [&](Raylet& A, Raylet& B) ->bool {
+                return pow((A.first[0] + A.second[0])/2 - a, 2) + pow((A.first[1] + A.second[1])/2 - b, 2)
+                < pow((B.first[0] + B.second[0])/2 - a, 2) + pow((B.first[1] + B.second[1])/2 - b, 2);
+            };
+
+			sort(Ray[i][vertex].begin(), Ray[i][vertex].end(), cmp);
+
+
+            for (auto it = Ray[i][vertex].begin(); it != Ray[i][vertex].end(); ) {
+
+			    if ( fabs(it->first[0] - it->second[0]) < MEX_EPS
+			    && fabs(it->first[1] - it->second[1]) < MEX_EPS ) {
+                    it = Ray[i][vertex].erase(it);
+			    }
+			    else {
+			        ++it;
+			    }
+
+			}
+
+			auto itrFirst = Ray[i][vertex].begin();
+            auto itrLast = Ray[i][vertex].end();
+            auto itrResult = itrFirst;
+            if (itrFirst == itrLast) { // only one raylet.
+                itrResult = itrLast;
+            }
+            else {
+                itrResult = itrFirst;
+                while (++itrFirst != itrLast) {
+                    if (!(fabs(itrResult->first[0] - itrFirst->first[0]) < MEX_EPS
+                          && fabs(itrResult->first[1] - itrFirst->first[1]) < MEX_EPS)) {
+                        // only test equal condiion for the first coordinate.
+                        ++itrResult;
+                        (itrResult)->elem = itrFirst->elem;
+                        (itrResult)->first[0] = itrFirst->first[0];
+                        (itrResult)->second[0] = itrFirst->second[0];
+                        (itrResult)->first[1] = itrFirst->first[1];
+                        (itrResult)->second[1] = itrFirst->second[1];
+                    }
+                }
+                ++itrResult;
+            }
+            Ray[i][vertex].resize( std::distance(Ray[i][vertex].begin(),itrResult) );
 			Ray[i][vertex].shrink_to_fit();
 		}
 	}
+    
 }
 
+/*
+ *
+ *  RayTrace finds the intersection point for a ray and 3 segments.
+ *
+ *  there will be 3 intersections at most (with duplicates). The triangle is not degenerated.
+ *
+ *
+ */
 void Tracer::RayTrace(std::vector<double>& tmp, bool& intersect, double& q_t, double& q_eta,
 			double& q_x1, double& q_y1, double& q_x2,
 			double& q_y2, double& q_x3, double& q_y3,
@@ -213,21 +281,7 @@ void Tracer::RayTrace(std::vector<double>& tmp, bool& intersect, double& q_t, do
 	// 1 - 2 intersects.
 	if (fabs(INTERSECT_DET(q_x1, q_y1, q_x2, q_y2, theta)) < 1 * MEX_EPS){
 		// ray parallel for edge.
-		if (fabs(INTERSECT_CROSS(q_x1, q_y1, q_x2, q_y2, a, b)) < 1 * MEX_EPS){
-			// it is lucky to be colinear.
-			if (fabs(q_x1 - q_x2) + MEX_EPS < fabs(q_x1 - a) + fabs(q_x2 - a) ||
-					fabs(q_y1 - q_y2) + MEX_EPS < fabs(q_y1 - b) + fabs(q_y2 - b) ){
-				// outside
-			}
-			else {
-				intersect = true;
-				tmp.push_back(a);
-				tmp.push_back(b);
-			}
-		}
-		else {
-			// intersect = false;
-		}
+		// in this case, we consider the intersection is not valid.
 	}
 	else{
 		// not parallel, then there is a intersect.
@@ -240,7 +294,7 @@ void Tracer::RayTrace(std::vector<double>& tmp, bool& intersect, double& q_t, do
 		 * q_t = 0 means colinear
 		 *
 		 */
-		if (q_t >= 0 && q_eta >= -MEX_EPS && q_eta <= 1 + MEX_EPS) {
+		if (q_t >= -MEX_EPS && q_eta >=-MEX_EPS && q_eta <= 1 + MEX_EPS) {
 			intersect = true;
 			tmp.push_back(q_eta * q_x1 + (1- q_eta) * q_x2);
 			tmp.push_back(q_eta * q_y1 + (1 -q_eta) * q_y2);
@@ -249,22 +303,6 @@ void Tracer::RayTrace(std::vector<double>& tmp, bool& intersect, double& q_t, do
 	// 2 - 3
 	if (fabs(INTERSECT_DET(q_x2, q_y2, q_x3, q_y3, theta)) < 1 * MEX_EPS){
 		// ray parallel for edge.
-		if (fabs(INTERSECT_CROSS(q_x2, q_y2, q_x3, q_y3, a, b)) < 1 * MEX_EPS){
-			// it is lucky to be colinear.
-			if (fabs(q_x2 - q_x3) + MEX_EPS < fabs(q_x2 - a) + fabs(q_x3 - a) ||
-					fabs(q_y2 - q_y3) + MEX_EPS < fabs(q_y2 - b) + fabs(q_y3 - b) ){
-
-				// outside
-			}
-			else {
-				intersect = true;
-				tmp.push_back(a);
-				tmp.push_back(b);
-			}
-		}
-		else {
-			// intersect = false;
-		}
 	}
 	else{
 		// not parallel, then there is a intersect.
@@ -278,7 +316,7 @@ void Tracer::RayTrace(std::vector<double>& tmp, bool& intersect, double& q_t, do
 		 * q_t = 0 means colinear
 		 *
 		 */
-		if (q_t >= 0 && q_eta >= -MEX_EPS && q_eta <= 1 + MEX_EPS) {
+		if (q_t >= -MEX_EPS && q_eta >= -MEX_EPS && q_eta <= 1 + MEX_EPS) {
 			intersect = true;
 			tmp.push_back(q_eta * q_x2 + (1 - q_eta) * q_x3);
 			tmp.push_back(q_eta * q_y2 + (1 - q_eta) * q_y3);
@@ -287,22 +325,6 @@ void Tracer::RayTrace(std::vector<double>& tmp, bool& intersect, double& q_t, do
 	// 3 - 1
 	if (fabs(INTERSECT_DET(q_x3, q_y3, q_x1, q_y1, theta)) < 1 * MEX_EPS){
 		// ray parallel for edge.
-		if (fabs(INTERSECT_CROSS(q_x3, q_y3, q_x1, q_y1, a, b)) < 1 * MEX_EPS){
-			// it is lucky to be colinear.
-			if (fabs(q_x3 - q_x1) + MEX_EPS < fabs(q_x3 - a) + fabs(q_x1 - a) ||
-					fabs(q_y3 - q_y1) + MEX_EPS < fabs(q_y3 - b) + fabs(q_y1 - b) ){
-
-				// outside
-			}
-			else {
-				intersect = true;
-				tmp.push_back(a);
-				tmp.push_back(b);
-			}
-		}
-		else {
-			// intersect = false;
-		}
 	}
 	else{
 		// not parallel, then there is a intersect.
@@ -315,73 +337,115 @@ void Tracer::RayTrace(std::vector<double>& tmp, bool& intersect, double& q_t, do
 		 * q_t = 0 means colinear
 		 *
 		 */
-		if (q_t >= 0 && q_eta >= -MEX_EPS && q_eta <= 1 + MEX_EPS) {
+		if (q_t >= MEX_EPS && q_eta >= -MEX_EPS && q_eta <= 1 + MEX_EPS) {
 			intersect = true;
 			tmp.push_back(q_eta * q_x3 + (1 - q_eta) * q_x1);
 			tmp.push_back(q_eta * q_y3 + (1 - q_eta) * q_y1);
 		}
 	}
+	// the output has at most 3 points.
 }
 
 void Tracer::RayTrim(std::vector<double>& tmp, double &a, double &b){
-	for (int32_t tmp_i = 0; tmp_i < tmp.size()/2; tmp_i ++){
 
-		if (fabs(a - tmp[2 * tmp_i]) + fabs(b - tmp[2 * tmp_i + 1]) < MEX_EPS){
-			tmp.erase(tmp.begin() + 2 * tmp_i, tmp.begin() + 2 * tmp_i + 2);
-			tmp_i --;
-		}
-	}
+    assert(tmp.size() <= 6);
+    if (tmp.size() == 0) return;
+    /*
+     * there are 3 points at most, to reduce the number, we have to find out which to be reduced.
+     *
+     * for the case with 3 points (size = 6), there is a duplicate.
+     *
+     */
+    if (tmp.size() == 6) {
+        // 2 - 3 duplicates
+        if (fabs(tmp[2] - tmp[4]) + fabs(tmp[3] - tmp[5]) < MEX_EPS){
+            tmp.erase(tmp.begin() + 2, tmp.begin() + 4);
+        }
+            // 3 - 1 duplicates or 1 - 2 duplicates
+        else if (fabs(tmp[0] - tmp[2]) + fabs(tmp[1] - tmp[3]) < MEX_EPS) {
+            tmp.erase(tmp.begin(), tmp.begin() + 2);
+        }
+        else if (fabs(tmp[0] - tmp[4]) + fabs(tmp[1] - tmp[5]) < MEX_EPS) {
+            tmp.erase(tmp.begin(), tmp.begin() + 2);
+        }
+        else {
+            std::cout << "error !!!!! " << std::endl;
+        }
 
-	if (tmp.size() == 6) {
-	// 2 - 3 duplicates
-		if (fabs(tmp[2] - tmp[4]) + fabs(tmp[3] - tmp[5]) < MEX_EPS){
-			tmp.erase(tmp.begin() + 2, tmp.begin() + 4);
-		}
-	// 3 - 1 duplicates or 1 - 2 duplicates
-		else {
-			tmp.erase(tmp.begin(), tmp.begin() + 2);
-		}
-	}
-	if (tmp.size() == 4) {
-		//remove duplicates
-		if (fabs(tmp[0] - tmp[2]) + fabs(tmp[1] - tmp[3]) < MEX_EPS) {
-			tmp.erase(tmp.begin() + 2, tmp.end());
-		}
-		else {
-			// reorder
-			if (pow(tmp[0] - a, 2) + pow(tmp[1] - b, 2) > pow(tmp[2] - a, 2) + pow(tmp[3] - b, 2)){
-				swap(tmp[0], tmp[2]);
-				swap(tmp[1], tmp[3]);
-			}
-		}
-	}
+    }
+
+    if (tmp.size() == 4) {
+        // check duplicates
+
+        // reorder
+        if (pow(tmp[0] - a, 2) + pow(tmp[1] - b, 2) > pow(tmp[2] - a, 2) + pow(tmp[3] - b, 2)){
+            swap(tmp[0], tmp[2]);
+            swap(tmp[1], tmp[3]);
+        }
+
+    }
 }
 //TODO: get option for display verbose information.
-void Tracer::RayShow(){
-	int32_t tmp_i, tmp_j;
-	size_t tmp_total = 0;
-	if (Ray.size() != 0) {
-		for (int32_t i = 0 ; i < Ray.size(); i++){
-			tmp_i = Ray[i].size();
-			for (int32_t j = 0; j < tmp_i; j++){
-				tmp_j = Ray[i][j].capacity();
-				tmp_total += tmp_j * sizeof(Raylet);
+void Tracer::RayShow(int l){
+    if (l < 0) {
+        int32_t tmp_i, tmp_j;
+        size_t tmp_total = 0;
+        if (Ray.size() != 0) {
+            for (int32_t i = 0; i < Ray.size(); i++) {
+                tmp_i = Ray[i].size();
+                for (int32_t j = 0; j < tmp_i; j++) {
+                    tmp_j = Ray[i][j].capacity();
+                    tmp_total += tmp_j * sizeof(Raylet);
 
-//				for (int32_t k = 0; k < tmp_j; k++) {
-//					std::cout << i << "th Angle, "
-//							<< j << "th node, "
-//							<< k << "th raylet: passes through "
-//							<< Ray[i][j][k].elem << ", starting from "
-//							<< Ray[i][j][k].first[0] << ", " << Ray[i][j][k].first[1] << " --> "
-//							<< Ray[i][j][k].second[0] << ", " << Ray[i][j][k].second[1] << std::endl;
-//				}
-			}
-		}
-	}
-	std::cout
-	<< tmp_total / 1024.0/ 1024.0/ 1024.0
-	<< " GBytes used in geometry storage."
-	<< std::endl;
+                    for (int32_t k = 0; k < tmp_j; k++) {
+
+                        std::cout << i << "th Angle, "
+                                  << j << "th node, "
+                                  << k << "th raylet: passes through "
+                                  << Ray[i][j][k].elem << ", starting from "
+                                  << Ray[i][j][k].first[0] << ", " << Ray[i][j][k].first[1] << " --> "
+                                  << Ray[i][j][k].second[0] << ", " << Ray[i][j][k].second[1] << std::endl;
+
+
+                    }
+                }
+            }
+        }
+        std::cout
+                << tmp_total / 1024.0 / 1024.0 / 1024.0
+                << " GBytes used in geometry storage."
+                << std::endl;
+    }
+    else {
+        int32_t tmp_i, tmp_j;
+        size_t tmp_total = 0;
+        if (Ray.size() != 0) {
+            for (int32_t i = 0; i < Ray.size(); i++) {
+                tmp_i = Ray[i].size();
+                for (int32_t j = 0; j < tmp_i; j++) {
+                    tmp_j = Ray[i][j].capacity();
+                    tmp_total += tmp_j * sizeof(Raylet);
+
+                    for (int32_t k = 0; k < tmp_j; k++) {
+                        if (j == l) {
+                            std::cout << i << "th Angle, "
+                                      << j << "th node, "
+                                      << k << "th raylet: passes through "
+                                      << Ray[i][j][k].elem << ", starting from "
+                                      << Ray[i][j][k].first[0] << ", " << Ray[i][j][k].first[1] << " --> "
+                                      << Ray[i][j][k].second[0] << ", " << Ray[i][j][k].second[1] << std::endl;
+
+
+                        }
+                    }
+                }
+            }
+        }
+        std::cout
+                << tmp_total / 1024.0 / 1024.0 / 1024.0
+                << " GBytes used in geometry storage."
+                << std::endl;
+    }
 }
 
 void Tracer::RayBC(double* pnodes, size_t numberofnodes, int* pelems, size_t numberofnodesperelem, double* pval, double* sol, double* ptr){
@@ -467,12 +531,13 @@ namespace {
     }
 
     MEX_DEFINE(disp) (int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
-    	InputArguments input(nrhs, prhs, 1);
+    	InputArguments input(nrhs, prhs, 2);
     	OutputArguments output(nlhs, plhs, 0);
 
     	auto tracer = Session<Tracer>::get(input.get(0));
+    	auto pl      = mxGetPr(prhs[1]);
 
-    	tracer->RayShow();
+    	tracer->RayShow(int(*pl));
     }
 
     MEX_DEFINE(boundary_transport)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {

@@ -64,13 +64,16 @@ public:
 
 	void RayTrim(std::vector<double>& tmp, double &a, double &b);
 
-	void RayShow();
+	void RayShow(int l);
 
 	void RayBC(double* pnodes, size_t numberofnodes, int* pelems, size_t numberofnodesperelem, double* pval, double* sol, double* ptr);
 
 	vector<vector<vector<Raylet>>> Ray;
 
 };
+
+
+
 
 inline double INTERSECT_DET(double X1, double Y1, double X2, double Y2, double THETA){
 		return ((cos((THETA)) * ((Y1) - (Y2))) - (sin((THETA)) * ((X1) - (X2))));

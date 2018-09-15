@@ -12,8 +12,12 @@ classdef tracer < handle
             TracerWrapper('delete', obj.id);
         end
         
-        function disp(obj)
-            TracerWrapper('disp', obj.id);
+        function disp(obj, l)
+            if (nargin < 2)
+                TracerWrapper('disp', obj.id, -1);
+            else
+                TracerWrapper('disp', obj.id, l);
+            end
         end
         
         function v = boundary_transport(obj, node, elem, sigma_a, u)
