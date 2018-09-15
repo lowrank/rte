@@ -67,6 +67,7 @@ public:
 	void RayShow(int l);
 
 	void RayBC(double* pnodes, size_t numberofnodes, int* pelems, size_t numberofnodesperelem, double* pval, double* sol, double* ptr);
+	void RayIN(double* pnodes, size_t numberofnodes, int* pelems, size_t numberofnodesperelem, double* pval, double* sol, double* ptr);
 
 	vector<vector<vector<Raylet>>> Ray;
 

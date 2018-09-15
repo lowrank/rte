@@ -23,6 +23,11 @@ classdef tracer < handle
         function v = boundary_transport(obj, node, elem, sigma_a, u)
             v = TracerWrapper('boundary_transport', obj.id, node, elem, sigma_a, u);
         end
+        
+        
+        function v = interior_transport(obj, node, elem, sigma_a, u)
+            v = TracerWrapper('interior_transport', obj.id, node, elem, sigma_a, u);
+        end
     end
     
 end
