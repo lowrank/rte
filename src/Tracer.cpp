@@ -368,10 +368,6 @@ void Tracer::RayTrim(std::vector<double>& tmp, double &a, double &b){
         else if (fabs(tmp[0] - tmp[4]) + fabs(tmp[1] - tmp[5]) < MEX_EPS) {
             tmp.erase(tmp.begin(), tmp.begin() + 2);
         }
-        else {
-            std::cout << "error !!!!! " << std::endl;
-        }
-
     }
 
     if (tmp.size() == 4) {
@@ -397,17 +393,17 @@ void Tracer::RayShow(int l){
                     tmp_j = Ray[i][j].capacity();
                     tmp_total += tmp_j * sizeof(Raylet);
 
-                    for (int32_t k = 0; k < tmp_j; k++) {
-
-                        std::cout << i << "th Angle, "
-                                  << j << "th node, "
-                                  << k << "th raylet: passes through "
-                                  << Ray[i][j][k].elem << ", starting from "
-                                  << Ray[i][j][k].first[0] << ", " << Ray[i][j][k].first[1] << " --> "
-                                  << Ray[i][j][k].second[0] << ", " << Ray[i][j][k].second[1] << std::endl;
-
-
-                    }
+//                     for (int32_t k = 0; k < tmp_j; k++) {
+// 
+//                         std::cout << i << "th Angle, "
+//                                   << j << "th node, "
+//                                   << k << "th raylet: passes through "
+//                                   << Ray[i][j][k].elem << ", starting from "
+//                                   << Ray[i][j][k].first[0] << ", " << Ray[i][j][k].first[1] << " --> "
+//                                   << Ray[i][j][k].second[0] << ", " << Ray[i][j][k].second[1] << std::endl;
+// 
+// 
+//                     }
                 }
             }
         }

@@ -1,6 +1,6 @@
 % rte demo script
 %% setup
-NA = 1;
+NA = 256;
 nodes = [0 0; 1 0; 1 1; 0 1]';
 
 %% mesh generation
@@ -11,7 +11,7 @@ idx  = circshift(reshape(repmat(0:size(nodes, 2)-1, 2, 1),...
 mesh.set_points_tri(hull);
 mesh.set_facets_tri(idx);
 mesh = mesh.build_tri(); % not ready to go
-mesh = mesh.refine_tri(sprintf('q34.0a%f', 0.000325));  
+mesh = mesh.refine_tri(sprintf('q34.0a%f', 0.0005));  
 
 %% mesh properties
 [p,s,t,e, n] = mesh.getData_tri();
@@ -36,12 +36,10 @@ sol = zeros(NA, size(p, 2));
 
 for bid = 1:length(bc)
     for aid = 1:NA
-        sol(aid, bc(bid)) = 1.0 ;
+        sol(aid, bc(bid)) = 1.0;
     end
 end
 
-% isotropic point source.
-
-tic;u = rays.boundary_transport(p, t, 0.5*ones(size(p,2),1), sol);toc;
+tic;u = rays.boundary_transport(p, t, 2*ones(size(p,2),1), sol);toc;
 fl = sum(u,1)/NA;
-trisurf(t(1:3,:)', p(1,:), p(2,:), fl', 'EdgeColor', 'k');%shading interp;view(2);colorbar;colormap jet;
+trisurf(t(1:3,:)', p(1,:), p(2,:), fl', 'EdgeColor', 'None');shading interp;view(2);colorbar;colormap jet;
