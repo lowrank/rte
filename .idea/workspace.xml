@@ -11,10 +11,8 @@
   <component name="ChangeListManager">
     <list default="true" id="98653756-cd02-443a-a209-96f5dd49fd29" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/class/tracer/tracer.m" beforeDir="false" afterPath="$PROJECT_DIR$/class/tracer/tracer.m" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rte_demo.m" beforeDir="false" afterPath="$PROJECT_DIR$/rte_demo.m" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Tracer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/Tracer.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Tracer.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/Tracer.h" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -26,53 +24,45 @@
     <session id="-701576998">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="2" />
+          <entry key="project.closed" value="3" />
           <entry key="project.open.time.0" value="1" />
           <entry key="project.open.time.1" value="1" />
+          <entry key="project.open.time.4" value="1" />
           <entry key="project.open.time.6" value="1" />
-          <entry key="project.opened" value="3" />
+          <entry key="project.opened" value="4" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="cpp" value="1" />
+          <entry key="cpp" value="2" />
           <entry key="h" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="ObjectiveC" value="2" />
+          <entry key="ObjectiveC" value="3" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="cpp" value="6066" />
+          <entry key="cpp" value="6570" />
           <entry key="h" value="67" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="ObjectiveC" value="6133" />
+          <entry key="ObjectiveC" value="6637" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+    <leaf>
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Tracer.cpp">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="605">
-              <caret line="575" column="68" selection-start-line="575" selection-start-column="68" selection-end-line="575" selection-end-column="68" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Tracer.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="577">
-              <caret line="69" column="135" lean-forward="true" selection-start-line="69" selection-start-column="4" selection-end-line="69" selection-end-column="135" />
+              <caret line="200" column="61" selection-start-line="200" selection-start-column="61" selection-end-line="200" selection-end-column="61" />
             </state>
           </provider>
         </entry>
@@ -96,7 +86,7 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="-52" />
     <option name="y" value="-4" />
     <option name="width" value="1849" />
@@ -108,7 +98,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -125,6 +114,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -158,18 +148,19 @@
       <updated>1536905558735</updated>
       <workItem from="1536905560175" duration="19108000" />
       <workItem from="1536983190818" duration="2333000" />
-      <workItem from="1537048143436" duration="5513000" />
+      <workItem from="1537048143436" duration="5517000" />
+      <workItem from="1537063619880" duration="1771000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="26954000" />
+    <option name="totallyTimeSpent" value="28729000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="65" y="-4" width="1855" height="1084" extended-state="7" />
+    <frame x="64" y="-11" width="1857" height="1092" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.09397457" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.09508015" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -206,7 +197,7 @@
     <entry file="file://$PROJECT_DIR$/src/Tracer.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="605">
-          <caret line="575" column="68" selection-start-line="575" selection-start-column="68" selection-end-line="575" selection-end-column="68" />
+          <caret line="200" column="61" selection-start-line="200" selection-start-column="61" selection-end-line="200" selection-end-column="61" />
         </state>
       </provider>
     </entry>

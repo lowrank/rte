@@ -126,8 +126,8 @@ void Tracer::RayHelper(size_t numberofelems, size_t numberofnodesperelem,
                     tmp_ray.second[1] = tmp[3];
                 }
                 else if (tmp.size() == 2) {
-                    tmp_ray.first[0] = a;
-                    tmp_ray.first[1] = b;
+                    tmp_ray.first[0] = tmp[0];
+                    tmp_ray.first[1] = tmp[1];
                     tmp_ray.second[0] = tmp[0];
                     tmp_ray.second[1] = tmp[1];
                 }
@@ -197,8 +197,8 @@ void Tracer::RayHelper(size_t numberofelems, size_t numberofnodesperelem,
                                     tmp_ray.second[1] = tmp[3];
                                 }
                                 else if (tmp.size() == 2) {
-                                    tmp_ray.first[0] = a;
-                                    tmp_ray.first[1] = b;
+                                    tmp_ray.first[0] = tmp[0];
+                                    tmp_ray.first[1] = tmp[1];
                                     tmp_ray.second[0] = tmp[0];
                                     tmp_ray.second[1] = tmp[1];
                                 }
@@ -257,6 +257,22 @@ void Tracer::RayHelper(size_t numberofelems, size_t numberofnodesperelem,
                 ++itrResult;
             }
             Ray[i][vertex].resize( std::distance(Ray[i][vertex].begin(),itrResult) );
+
+            // check if the ray is valid.
+            if ( Ray[i][vertex].size() >= 2) {
+                for (auto chk_id = 0; chk_id < Ray[i][vertex].size() - 1; ++chk_id) {
+                    if (fabs(Ray[i][vertex][chk_id].second[0] - Ray[i][vertex][chk_id + 1].first[0] ) > MEX_EPS ||
+                    fabs(Ray[i][vertex][chk_id].second[1] - Ray[i][vertex][chk_id + 1].first[1] ) > MEX_EPS ) {
+                        std::cout << "Invalid Ray formation at " << i
+                        << "th angle," << vertex << "th point," << chk_id << " raylet with err = " <<
+                        fabs(Ray[i][vertex][chk_id].second[0] - Ray[i][vertex][chk_id + 1].first[0] ) << " " <<
+                        fabs(Ray[i][vertex][chk_id].second[1] - Ray[i][vertex][chk_id + 1].first[1] ) << std::endl;
+                    }
+                }
+            }
+
+
+
             Ray[i][vertex].shrink_to_fit();
         }
     }

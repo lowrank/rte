@@ -11,7 +11,7 @@ idx  = circshift(reshape(repmat(0:size(nodes, 2)-1, 2, 1),...
 mesh.set_points_tri(hull);
 mesh.set_facets_tri(idx);
 mesh = mesh.build_tri(); % not ready to go
-mesh = mesh.refine_tri(sprintf('q34.0a%f', 0.002));  
+mesh = mesh.refine_tri(sprintf('q34.0a%f', 0.0001));  
 
 %% mesh properties
 [p,s,t,e, n] = mesh.getData_tri();
