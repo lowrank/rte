@@ -22,7 +22,7 @@ classdef rte < handle
         nPoint
     end
     
-    methods
+    methods (Access = public)
         function obj = rte(opt)
             if isfield(opt, 'angle')
                 obj.nAngle = opt.angle;
@@ -45,6 +45,63 @@ classdef rte < handle
             obj.bc = unique(obj.segms);            
         end
         
+        function setCoefficents(obj, sigmaTFunctionHandle, sigmaSFunctionHandle)
+            obj.sigmaT = sigmaTFunctionHandle(obj.nodes);
+            obj.sigmaS = sigmaSFunctionHandle(obj.nodes);
+        end
+        
+        function setBoundaryCondition(obj, boundaryFunctionHandle)
+            obj.boundarySource = zeros(obj.nAngle, obj.nPoint);
+            
+            for j = 1:length(obj.bc)
+                for i = 1:obj.nAngle
+                    obj.boundarySource(i, obj.bc(j)) = ...
+                        boundaryFunctionHandle( ... 
+                        obj.nodes(1, obj.bc(j)), ...
+                        obj.nodes(2, obj.bc(j)), ...
+                        obj.angles(i) ...
+                        );
+                end
+            end
+        end    
+        
+        function setInteriorCondition(obj, interiorFunctionHandle)
+            obj.interiorSource = zeros(obj.nAngle, obj,nPoint);
+            
+            for j = 1:obj.nPoint
+                for i = 1:obj.nAngle
+                    obj.interiorSource(i, j) = ...
+                        interiorFunctionHandle( ... 
+                        obj.nodes(1, j), ...
+                        obj.nodes(2, j), ...
+                        obj.angles(i));
+                end
+            end
+        end
+        
+        function ForwardSolve(obj)
+            % in the real case, the momentum is not independent quantity.
+            % We still have to solve a large system to get the iteration
+            % converged.
+            tic; u = obj.rays.boundary_transport(...
+                obj.nodes, obj.elems, obj.sigmaT, obj.boundarySource); toc;
+            boundaryFluence = (sum(u, 1)/ obj.nAngle)';
+            
+            
+            forwardMap = @(X) ( X - obj.sigmaS' .* (sum( obj.rays.interior_transport(...
+                obj.nodes, obj.elems, obj.sigmaT,  repmat(X', obj.nAngle, 1)) ,1 )/ obj.nAngle)' );
+            
+            tic; x = gmres(forwardMap, boundaryFluence, 10, 1e-10, 400); toc;
+            
+            trisurf(obj.elems(1:3,:)', obj.nodes(1,:), obj.nodes(2,:), ...
+                x', 'EdgeColor', 'None');
+            
+            shading interp;view(2);colorbar;colormap jet;
+            
+        end
+    end
+    
+    methods (Access = private)
         function meshGenerator(obj, nodes, minArea)
             hull = reshape(nodes, 2 * size(nodes, 2), 1);
             idx  = circshift(reshape(repmat(0:size(nodes, 2)-1, 2, 1),...
@@ -62,21 +119,6 @@ classdef rte < handle
             obj.nPoint = size(obj.nodes, 2);
             
         end
-        
-        function setBoundaryCondition(obj, boundaryFunctionHandle)
-            obj.boundarySource = zeros(obj.nAngle, obj.nPoint);
-            
-            for j = 1:length(obj.bc)
-                for i = 1:obj.nAngle
-                    obj.boundarySource(i, obj.bc(j)) = ...
-                        boundaryFunctionHandle( ... 
-                        obj.nodes(1, obj.bc(j)), ...
-                        obj.nodes(2, obj.bc(j)), ...
-                        obj.angles(i) ...
-                        );
-                end
-            end
-        end        
     end
     
 end
