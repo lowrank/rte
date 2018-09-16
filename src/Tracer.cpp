@@ -526,6 +526,7 @@ void Tracer::RayBC(double* pnodes, size_t numberofnodes, int* pelems, size_t num
 
 void Tracer::RayIN(double* pnodes, size_t numberofnodes, int* pelems, size_t numberofnodesperelem, double* pval, double* sol, double* ptr) {
     auto angles = Ray.size();
+#pragma omp parallel for
     for (int si = 0; si < angles; ++si) { // angles
         double det, length, eta1, lambda1, eta2, lambda2, lv, rv, acc, bd1, bd2;
         double x1, y1, x2, y2, x3, y3;
