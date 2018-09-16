@@ -219,9 +219,10 @@ void Tracer::RayHelper(size_t numberofelems, size_t numberofnodesperelem,
                        < pow((B.first[0] + B.second[0])/2 - a, 2) + pow((B.first[1] + B.second[1])/2 - b, 2);
             };
 
+            // sort all segments, it should be very fast, because it is almost sorted.
             sort(Ray[i][vertex].begin(), Ray[i][vertex].end(), cmp);
 
-
+            // delete zero-length segments.
             for (auto it = Ray[i][vertex].begin(); it != Ray[i][vertex].end(); ) {
 
                 if ( fabs(it->first[0] - it->second[0]) < MEX_EPS
@@ -234,6 +235,7 @@ void Tracer::RayHelper(size_t numberofelems, size_t numberofnodesperelem,
 
             }
 
+            // delete duplicated in the sorted array.
             auto itrFirst = Ray[i][vertex].begin();
             auto itrLast = Ray[i][vertex].end();
             auto itrResult = itrFirst;
@@ -256,6 +258,8 @@ void Tracer::RayHelper(size_t numberofelems, size_t numberofnodesperelem,
                 }
                 ++itrResult;
             }
+            
+            // only get the valid ones.
             Ray[i][vertex].resize( std::distance(Ray[i][vertex].begin(),itrResult) );
 
             // check if the ray is valid.
@@ -272,7 +276,7 @@ void Tracer::RayHelper(size_t numberofelems, size_t numberofnodesperelem,
             }
 
 
-
+            // save space.
             Ray[i][vertex].shrink_to_fit();
         }
     }
@@ -398,7 +402,7 @@ void Tracer::RayTrim(std::vector<double>& tmp, double &a, double &b){
     }
 }
 //TODO: get option for display verbose information.
-void Tracer::RayShow(int l){
+void Tracer::RayShow(int l, int m){
     if (l < 0) {
         int32_t tmp_i, tmp_j;
         size_t tmp_total = 0;
@@ -439,7 +443,7 @@ void Tracer::RayShow(int l){
                     tmp_total += tmp_j * sizeof(Raylet);
 
                     for (int32_t k = 0; k < tmp_j; k++) {
-                        if (j == l) {
+                        if (j == l && i == m) {
                             std::cout << i << "th Angle, "
                                       << j << "th node, "
                                       << k << "th raylet: passes through "
@@ -620,13 +624,14 @@ Session<Tracer>::destroy(input.get(0));
 }
 
 MEX_DEFINE(disp) (int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
-    InputArguments input(nrhs, prhs, 2);
+    InputArguments input(nrhs, prhs, 3);
     OutputArguments output(nlhs, plhs, 0);
 
     auto tracer = Session<Tracer>::get(input.get(0));
     auto pl      = mxGetPr(prhs[1]);
+    auto pm      = mxGetPr(prhs[2]);
 
-    tracer->RayShow(int(*pl));
+    tracer->RayShow(int(*pl), int(*pm));
 }
 
 MEX_DEFINE(boundary_transport)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {

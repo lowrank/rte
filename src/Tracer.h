@@ -64,7 +64,7 @@ public:
 
 	void RayTrim(std::vector<double>& tmp, double &a, double &b);
 
-	void RayShow(int l);
+	void RayShow(int l, int m);
 
 	void RayBC(double* pnodes, size_t numberofnodes, int* pelems, size_t numberofnodesperelem, double* pval, double* sol, double* ptr);
 	void RayIN(double* pnodes, size_t numberofnodes, int* pelems, size_t numberofnodesperelem, double* pval, double* sol, double* ptr);

@@ -33,6 +33,7 @@ bcs.set_constraint('y');
 [bc1, bc2, bc3, bc4] =  bcs.get_boundary(e, p, 4);
 bc = unique([bc1 bc2 bc3 bc4]);
 
+%%
 boundary_source = zeros(NA, size(p, 2));
 
 for bid = 1:length(bc)
@@ -41,6 +42,7 @@ for bid = 1:length(bc)
     end
 end
 
+%%
 N = 500;
 [X,Y] =meshgrid(linspace(0, 1, N));
 X = X(:);
