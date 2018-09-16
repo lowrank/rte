@@ -38,3 +38,5 @@
 \.settings/
 
 *.mexa64
+
+\.idea
