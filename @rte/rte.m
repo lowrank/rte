@@ -121,5 +121,21 @@ classdef rte < handle
         end
     end
     
+    methods (Static)
+        % computes the Fourier transform directly.
+        %
+        % caution: 128 directions might only resolve anisotropy at g = 0.8
+        % and 256 directions only can resolve g = 0.9. For larger g, it
+        % should be noted that such forward peaking case can be well
+        % approximated by some other methods and not necessary to pursue
+        % this approach any more.
+        function f = HenyeyGreenstein(g, nAngle)
+            theta = linspace(0, 2 * pi, nAngle + 1);
+            theta = theta(1:end- 1);
+            f = fft(1/(2*pi) * (1 - g^2) ./ (1 + g^2 - 2 * g * cos(theta)));
+        end
+    end
+        
+    
 end
 
