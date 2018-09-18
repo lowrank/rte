@@ -1,6 +1,6 @@
 classdef rte < handle
-    
-    properties
+    % Radiative transfer class for 2D.
+    properties (Access = public)
         % structs
         rays
         
@@ -20,6 +20,12 @@ classdef rte < handle
         % scalars
         nAngle
         nPoint
+        dtheta
+        g
+    end
+    
+    properties (Access = public)
+        pFHG
     end
     
     methods (Access = public)
@@ -27,7 +33,7 @@ classdef rte < handle
             if isfield(opt, 'angle')
                 obj.nAngle = opt.angle;
             else 
-                obj.nAngle = 128;
+                obj.nAngle = 64;
             end
             
             if isfield(opt, 'nodes') && isfield(opt, 'minArea')
@@ -39,10 +45,20 @@ classdef rte < handle
             
             obj.angles  = linspace(0, 2*pi, obj.nAngle + 1) ;
             obj.angles  = obj.angles(1:end-1);
+            obj.dtheta  = 2 * pi / obj.nAngle;
             
             obj.rays    = tracer(obj.angles, obj.nodes, obj.elems, obj.neigs);
             
             obj.bc = unique(obj.segms);            
+            
+            if isfield(opt, 'anisotropy')
+                obj.g = opt.anisotropy;
+            else
+                obj.g = 0.0;
+            end
+            
+            
+            obj.pFHG = obj.HenyeyGreenstein(obj.g, obj.nAngle);
         end
         
         function setCoefficents(obj, sigmaTFunctionHandle, sigmaSFunctionHandle)
@@ -79,29 +95,36 @@ classdef rte < handle
             end
         end
         
-        function ForwardSolve(obj)
-            % in the real case, the momentum is not independent quantity.
-            % We still have to solve a large system to get the iteration
-            % converged.
-            tic; u = obj.rays.boundary_transport(...
-                obj.nodes, obj.elems, obj.sigmaT, obj.boundarySource); toc;
-            boundaryFluence = (sum(u, 1)/ obj.nAngle)';
+        function x = ForwardSolve(obj)
+            % There are redundant operations like reshaping in the
+            % implementation which can be opt out.
+            boundaryContrib = obj.rays.boundary_transport(...
+                obj.nodes, obj.elems, obj.sigmaT, obj.boundarySource); 
             
+            forwardMap = @(X) (X - obj.mapping(reshape(X, obj.nAngle, obj.nPoint)));
             
-            forwardMap = @(X) ( X - obj.sigmaS' .* (sum( obj.rays.interior_transport(...
-                obj.nodes, obj.elems, obj.sigmaT,  repmat(X', obj.nAngle, 1)) ,1 )/ obj.nAngle)' );
+            tic; x = gmres(forwardMap, reshape(boundaryContrib, obj.nAngle * obj.nPoint, 1), 10, 1e-10, 400); toc;
             
-            tic; x = gmres(forwardMap, boundaryFluence, 10, 1e-10, 400); toc;
+            x = reshape(x, obj.nAngle, obj.nPoint);
             
-            trisurf(obj.elems(1:3,:)', obj.nodes(1,:), obj.nodes(2,:), ...
-                x', 'EdgeColor', 'None');
-            
-            shading interp;view(2);colorbar;colormap jet;
+        end
+        
+        function plot(obj, x)
+            if (size(x, 2) > 1)
+                trisurf(obj.elems(1:3,:)', obj.nodes(1,:), obj.nodes(2,:), ...
+                sum(x, 1)/obj.nAngle, 'EdgeColor', 'None');
+                shading interp;view(2);colorbar;colormap jet;
+            else
+                trisurf(obj.elems(1:3,:)', obj.nodes(1,:), obj.nodes(2,:), ...
+                x, 'EdgeColor', 'None');
+                shading interp;view(2);colorbar;colormap jet;
+            end
+                
             
         end
     end
     
-    methods (Access = private)
+    methods (Access = public)
         function meshGenerator(obj, nodes, minArea)
             hull = reshape(nodes, 2 * size(nodes, 2), 1);
             idx  = circshift(reshape(repmat(0:size(nodes, 2)-1, 2, 1),...
@@ -119,7 +142,35 @@ classdef rte < handle
             obj.nPoint = size(obj.nodes, 2);
             
         end
+        
+        function Y = mapping(obj, X)
+            % input X is a large column vector now.
+            rX  = reshape(X, obj.nAngle, obj.nPoint);
+            sca = ifft(bsxfun(@times, obj.pFHG', fft(rX))) * obj.dtheta;
+            sca = bsxfun(@times, obj.sigmaS', sca');
+            Y = reshape(  obj.rays.interior_transport(...
+                obj.nodes, obj.elems, obj.sigmaT,  sca'), obj.nAngle * obj.nPoint, 1);
+            
+            
+            
+        end
     end
+    
+    methods (Static)
+        % computes the Fourier transform directly.
+        %
+        % caution: 128 directions might only resolve anisotropy at g = 0.8
+        % and 256 directions only can resolve g = 0.9. For larger g, it
+        % should be noted that such forward peaking case can be well
+        % approximated by some other methods and not necessary to pursue
+        % this approach any more.
+        function f = HenyeyGreenstein(g, nAngle)
+            theta = linspace(0, 2 * pi, nAngle + 1);
+            theta = theta(1:end- 1);
+            f = fft(1/(2*pi) * (1 - g^2) ./ (1 + g^2 - 2 * g * cos(theta)));
+        end
+    end
+        
     
 end
 
