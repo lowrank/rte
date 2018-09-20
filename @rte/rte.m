@@ -155,9 +155,6 @@ classdef rte < handle
             sca = bsxfun(@times, obj.sigmaS', sca');
             Y = reshape(  obj.rays.interior_transport(...
                 obj.nodes, obj.elems, obj.sigmaT,  sca'), obj.nAngle * obj.nPoint, 1);
-            
-            
-            
         end
     end
     
