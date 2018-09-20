@@ -1,5 +1,7 @@
-opt = struct('anisotropy', 0.5, 'angle', 32, ...
-    'nodes', [0 0; 1 0; 1 1; 0 1]', 'minArea', 0.00004);
+clear;clc;
+
+opt = struct('anisotropy', 0.5, 'angle', 16, ...
+    'nodes', [0 0; 1 0; 1 1; 0 1]', 'minArea', 0.004);
 
 obj = rte(opt);
 
@@ -61,5 +63,6 @@ for i = 1:Lbd
     
 end
 
+disp(sprintf('error of adjoint %f\n', s));
 
 
