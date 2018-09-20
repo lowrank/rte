@@ -2,7 +2,11 @@
 computaional toolbox for solving Radiative Transport Equations
 
 # Build
-in MATLAB console.
+If it is the first run, in the MATLAB console.
 ```
-make
+rte_startup
 ```
+will compile all modules.
+
+To use the rte class. Just add ``femm`` and ``class`` directories to the path of MATLAB.
+

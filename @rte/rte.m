@@ -95,6 +95,11 @@ classdef rte < handle
             end
         end
         
+        function setAnisotropy(obj, gprime)
+            obj.g = gprime;
+            obj.pFHG = obj.HenyeyGreenstein(obj.g, obj.nAngle);
+        end
+        
         function x = ForwardSolve(obj)
             % There are redundant operations like reshaping in the
             % implementation which can be opt out.
