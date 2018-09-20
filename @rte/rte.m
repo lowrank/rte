@@ -164,6 +164,8 @@ classdef rte < handle
         % should be noted that such forward peaking case can be well
         % approximated by some other methods and not necessary to pursue
         % this approach any more.
+        
+        % question: how to make this more efficient?
         function f = HenyeyGreenstein(g, nAngle)
             theta = linspace(0, 2 * pi, nAngle + 1);
             theta = theta(1:end- 1);
