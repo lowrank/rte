@@ -1,13 +1,15 @@
-clear;clc;
+% clear;clc;
 
-opt = struct('anisotropy', 0.5, 'angle', 16, ...
-    'nodes', [0 0; 1 0; 1 1; 0 1]', 'minArea', 0.004);
+function adjoint()
+
+opt = struct('anisotropy', 0.1, 'angle',16, ...
+    'nodes', [0 0;1 0;1 1;0 1]', 'minArea', 0.0001);
 
 obj = rte(opt);
 
 f = @(x,y,v) (1);
-sigmaS = @(x) (1 + 0.4* x(1, :));
-sigmaT = @(x) (0.4 *  x(1, :) + 1 + 0.2 * x(2,:));
+sigmaS = @(x) (10 + 0.6* x(1, :).*x(2, :));
+sigmaT = @(x) (1.2 *  x(1, :).*x(2,:) + 10 );
 
 obj.setBoundaryCondition(f);
 obj.setCoefficents(sigmaT, sigmaS);
@@ -17,7 +19,7 @@ x1 = obj.ForwardSolve();
 % then we compute the adjoint equation.
 
 
-g = @(x,y ,v) (x);
+g = @(x,y ,v) (y+1);
 obj.setBoundaryCondition(g);
 obj.setCoefficents(sigmaT, sigmaS);
 
@@ -36,20 +38,11 @@ s = 0;
 
 for i = 1:Lbd
     cur_edge = obj.segms(:, i);
-    if obj.nodes(1, cur_edge(1)) == 1.0 && obj.nodes(1, cur_edge(2)) == 1.0
-        % on the edge of right side
-        n = [1, 0];
-    elseif obj.nodes(1, cur_edge(1)) == 0.0 && obj.nodes(1, cur_edge(2)) == 0.0
-        % on the edge of left side
-        n = [-1, 0];
-        
-    elseif obj.nodes(2, cur_edge(1)) == 1.0 && obj.nodes(2, cur_edge(2)) == 1.0
-        % on the edge of top side
-        n = [0, 1];
-    elseif obj.nodes(2, cur_edge(1)) == 0.0 && obj.nodes(2, cur_edge(2)) == 0.0
-        % on the edge of bottom side
-        n = [0, -1];
-    end
+    
+    edge_v = obj.nodes(:, cur_edge(1))   - obj.nodes(:, cur_edge(2));
+    
+    n = [edge_v(2), -edge_v(1)];
+    n = n/norm(n);
     
     l = norm(obj.nodes(:, cur_edge(1))   - obj.nodes(:, cur_edge(2)));
     for j = 1:nAngle
@@ -63,6 +56,7 @@ for i = 1:Lbd
     
 end
 
-disp(sprintf('error of adjoint %f\n', s));
+% disp(sprintf('error of adjoint %f\n', s));
 
+end
 

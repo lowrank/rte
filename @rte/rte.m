@@ -82,7 +82,7 @@ classdef rte < handle
         end    
         
         function setInteriorCondition(obj, interiorFunctionHandle)
-            obj.interiorSource = zeros(obj.nAngle, obj,nPoint);
+            obj.interiorSource = zeros(obj.nAngle, obj.nPoint);
             
             for j = 1:obj.nPoint
                 for i = 1:obj.nAngle
