@@ -2,12 +2,12 @@
 
 function adjoint()
 
-opt = struct('anisotropy', 0.1, 'angle',16, ...
+opt = struct('anisotropy', 0.1, 'angle',32, ...
     'nodes', [0 0;1 0;1 1;0 1]', 'minArea', 0.0001);
 
 obj = rte(opt);
 
-f = @(x,y,v) (1);
+f = @(x,y,v) (x);
 sigmaS = @(x) (10 + 0.6* x(1, :).*x(2, :));
 sigmaT = @(x) (1.2 *  x(1, :).*x(2,:) + 10 );
 
@@ -19,7 +19,7 @@ x1 = obj.ForwardSolve();
 % then we compute the adjoint equation.
 
 
-g = @(x,y ,v) (y+1);
+g = @(x,y ,v) (y);
 obj.setBoundaryCondition(g);
 obj.setCoefficents(sigmaT, sigmaS);
 
@@ -56,7 +56,8 @@ for i = 1:Lbd
     
 end
 
-% disp(sprintf('error of adjoint %f\n', s));
+disp(sprintf('error of adjoint %f\n', s));
 
 end
+
 
