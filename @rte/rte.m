@@ -22,6 +22,10 @@ classdef rte < handle
         nPoint
         dtheta
         g
+        
+        % regularization
+        M
+        S
     end
     
     properties (Access = public)
@@ -145,6 +149,13 @@ classdef rte < handle
                 mesh.getData_tri();
 
             obj.nPoint = size(obj.nodes, 2);
+            
+            opt = struct('mesh', mesh, 'deg', 1, 'qdeg', 2);
+            model = femm(opt);
+            
+            obj.M = model.build('m', 1);
+            obj.S = model.build('s', 1);
+            
             
         end
         
