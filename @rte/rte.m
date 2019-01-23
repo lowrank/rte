@@ -112,7 +112,7 @@ classdef rte < handle
             
             forwardMap = @(X) (X - obj.mapping(reshape(X, obj.nAngle, obj.nPoint)));
             
-            tic; x = gmres(forwardMap, reshape(boundaryContrib, obj.nAngle * obj.nPoint, 1), 10, 1e-10, 400); toc;
+            [x, ~] = gmres(forwardMap, reshape(boundaryContrib, obj.nAngle * obj.nPoint, 1), 10, 1e-10, 400);
             
             x = reshape(x, obj.nAngle, obj.nPoint);
             
