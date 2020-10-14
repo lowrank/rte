@@ -2,14 +2,14 @@
 
 function adjoint()
 
-opt = struct('anisotropy', 0.1, 'angle',32, ...
-    'nodes', [0 0;1 0;1 1;0 1]', 'minArea', 0.0001);
+opt = struct('anisotropy', 0.1, 'angle',64, ...
+    'nodes', [0 0;1 0;1 1;0 1]', 'minArea', 2e-4);
 
 obj = rte(opt);
 
 f = @(x,y,v) (x);
-sigmaS = @(x) (10 + 0.6* x(1, :).*x(2, :));
-sigmaT = @(x) (1.2 *  x(1, :).*x(2,:) + 10 );
+sigmaS = @(x) (1.5 + 0.6* x(1, :).*x(2, :));
+sigmaT = @(x) (1.5 + 0.6*  x(1, :).*x(2,:) + 0.05 );
 
 obj.setBoundaryCondition(f);
 obj.setCoefficents(sigmaT, sigmaS);
